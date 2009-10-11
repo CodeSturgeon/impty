@@ -10,7 +10,7 @@ setup(name="IMAP4PowerToy",
       zip_safe = True,
       entry_points = {
           'console_scripts': [
-              'impty = couchnote.tool:main',
+              'impty = impty.tool:main',
           ]
       }
      )
