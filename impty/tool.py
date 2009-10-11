@@ -1,17 +1,46 @@
 from ConfigParser import ConfigParser
-from opster import command, dispatch
+from cmdln import Cmdln, option, SubCmdOptionParser
+from optparse import make_option, OptionGroup
+import sys
 
-msg_opts = [('n', 'new', False, 'Only new messages'),
-            ('d', 'deleted', False, 'Only deleted messages'),
-            ('', 'in-year', 0, 'Only messages from specified year')]
+def option_group(opts_group):
+    """Decorator to add option_group support to Cmdln.
+    
+    Based as closely as possible on cmdln.option"""
+    def decorate(f):
+        if not hasattr(f, "optparser"):
+            f.optparser = SubCmdOptionParser()
+        f.optparser.add_options(opts_group)
+        return f
+    return decorate
 
-@command(usage='%name <mbox-spec>', options=msg_opts)
-def count(mbox_spec, **opts):
-    """Count number of messages in a mailbox"""
-    print locals()
+def options(opts_list):
+    """Decorator to add options support to Cmdln.
+    
+    Based as closely as possible on cmdln.option"""
+    def decorate(f):
+        if not hasattr(f, "optparser"):
+            f.optparser = SubCmdOptionParser()
+        f.optparser.add_options(opts_list)
+        return f
+    return decorate
+
+class PowerToyUI(Cmdln):
+
+    @option("", "--year", type='int', action="store", dest='funky')
+    def do_count(self, mbox_spec, opts, *mboxs):
+        """${cmd_name}
+        Count number of messages in a mailbox
+        
+        ${cmd_usage}
+        ${cmd_option_list}"""
+
+        print locals()
+        print self.do_count.optparser
 
 def main():
-    dispatch()
+    ptui = PowerToyUI()
+    sys.exit(ptui.main())
 
 if __name__ == '__main__':
-    dispatch()
+    main()
