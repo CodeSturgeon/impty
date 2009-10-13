@@ -27,12 +27,32 @@ def options(opts_list):
         return f
     return decorate
 
+class ConfigFail(Exception):
+    pass
+
 class PowerToyUI(Cmdln):
 
     def cfg(self):
         self.log = logging.getLogger('UI')
         self.cfg = ConfigParser()
         self.cfg.read('/Users/fish/.impty_conf')
+
+    def mappet_from_cfg(self, account):
+        try:
+            server = self.cfg.get(account,'server')
+            username = self.cfg.get(account,'user')
+        except NoSectionError:
+            raise ConfigFail('No config for account: %s'%account)
+        except NoOptionError, e:
+            raise ConfigFail('No "%s" specified for account: %s'%(e.option,
+                                                                    account))
+
+        try:
+            password = self.cfg.get(account,'passwd')
+        except NoOptionError:
+            raise ConfigFail('No password configured for account %s'%account)
+
+        return Mappet(server, username, password)
 
     @option("", "--year", type='int', action="store", dest='funky')
     def do_count(self, sub_cmd, opts, *mboxs):
@@ -43,26 +63,18 @@ class PowerToyUI(Cmdln):
         ${cmd_option_list}"""
         self.cfg()
         for mbx in mboxs:
-            account, mbox = mbx.split(':')
             try:
-                server = self.cfg.get(account,'server')
-            except NoSectionError:
-                print 'No config for account: %s'%account
-            except NoOptionError:
-                print 'No server configured for account %s'%account
+                account, mbox = mbx.split(':')
+            except ValueError:
+                print 'Invalid mailbox spec: %s'%mbx
+                continue
             try:
-                username = self.cfg.get(account,'user')
-            except NoOptionError:
-                print 'No username configured for account %s'%account
-            try:
-                password = self.cfg.get(account,'passwd')
-            except NoOptionError:
-                print 'No password configured for account %s'%account
-            try:
-                m = Mappet(server, username, password)
-                count = m.count(mbox)
+                m = self.mappet_from_cfg(account)
+                count = m.count(mbox, 'ALL')
+            except ConfigFail, e:
+                print e.message
             except IMAPFail, e:
-                print e
+                print e.message
             else:
                 print mbx, count
         #print sub_cmd, mboxs
