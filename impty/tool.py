@@ -77,7 +77,6 @@ class PowerToyUI(Cmdln):
                 print e.message
             else:
                 print mbx, count
-        #print sub_cmd, mboxs
 
 def main():
     logging.basicConfig(level=logging.DEBUG)

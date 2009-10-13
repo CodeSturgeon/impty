@@ -29,7 +29,7 @@ class Mappet(object):
             self.log.warn('SELECT FAIL: [%s] %s'%(status, data))
             raise IMAPFail('Mailbox not found (%s)'%mailbox)
 
-    def cnx(self):
+    def _refresh(self):
         """Ensure a fresh connection"""
         if self._cnx is None:
             self._connect()
@@ -43,7 +43,7 @@ class Mappet(object):
         return data[0].split(' ')
 
     def count(self, mailbox, message_spec='ALL'):
-        self.cnx()
+        self._refresh()
         self._select(mailbox)
         message_list = self._search(message_spec)
         return len(message_list)
