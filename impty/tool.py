@@ -5,6 +5,7 @@ import sys
 from impty import Mappet, IMAPFail
 import logging
 from datetime import datetime
+from os.path import expanduser
 
 def option_group(title, opts_list, description=None):
     """Decorator to add option_group support to Cmdln.
@@ -35,10 +36,25 @@ class ConfigFail(Exception):
 
 class PowerToyUI(Cmdln):
 
-    def cfg(self):
+    opts_global = [
+        make_option('-c', '--config-file', default='~/.impty_conf',
+                    help='Specify location of configuration file (%default)'),
+        make_option('-v', '--verbose', action='store_const', dest='log_level',
+                    const=logging.INFO, help = 'Verbose output (INFO)'),
+        make_option('-V', '--very-verbose', action='store_const',
+                    dest='log_level', const=logging.DEBUG,
+                    help = 'Verbose output (DEBUG)'),
+    ]
+
+    def cfg(self, opts):
         self.log = logging.getLogger('UI')
+        if opts.log_level is None:
+            ll = logging.WARN
+        else:
+            ll = opts.log_level
+        logging.getLogger().setLevel(ll)
         self.cfg = ConfigParser()
-        self.cfg.read('/Users/fish/.impty_conf')
+        self.cfg.read(expanduser(opts.config_file))
 
     def mappet_from_cfg(self, account):
         try:
@@ -57,14 +73,14 @@ class PowerToyUI(Cmdln):
 
         return Mappet(server, username, password)
 
-    @option("", "--year", type='int', action="store", dest='funky')
+    @options(opts_global)
     def do_count(self, sub_cmd, opts, *mboxs):
         """${cmd_name}
         Count number of messages in a mailbox
         
         ${cmd_usage}
         ${cmd_option_list}"""
-        self.cfg()
+        self.cfg(opts)
         for mbx in mboxs:
             try:
                 account, mbox = mbx.split(':')
