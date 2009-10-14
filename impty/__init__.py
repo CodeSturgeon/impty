@@ -5,6 +5,9 @@ class IMAPFail(Exception):
     pass
 
 class Mappet(object):
+    """Exception throwing abstraction wrapper for imaplib's IMAP4 class.
+
+    All _name methods assume a _refresh has been run before they are called"""
     def __init__(self, server, username, password):
         self.server = server
         self.username = username

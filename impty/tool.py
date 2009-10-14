@@ -47,6 +47,8 @@ class PowerToyUI(Cmdln):
     ]
 
     def cfg(self, opts):
+        """Global option processing and configuration, much like an __init__
+        """
         self.log = logging.getLogger('UI')
         if opts.log_level is None:
             ll = logging.WARN
