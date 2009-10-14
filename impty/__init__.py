@@ -33,6 +33,12 @@ class Mappet(object):
         """Ensure a fresh connection"""
         if self._cnx is None:
             self._connect()
+            return
+        # Check for stale connection
+        try:
+            self._cnx.noop()
+        except (m.error, m.abort):
+            self._connect()
 
     def _search(self, message_spec):
         """Do a search and return a list of message numbers"""
@@ -43,6 +49,7 @@ class Mappet(object):
         return data[0].split(' ')
 
     def count(self, mailbox, message_spec='ALL'):
+        """High level count method"""
         self._refresh()
         self._select(mailbox)
         message_list = self._search(message_spec)
