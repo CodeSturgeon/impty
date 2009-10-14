@@ -4,15 +4,18 @@ from ConfigParser import ConfigParser, NoSectionError, NoOptionError
 import sys
 from impty import Mappet, IMAPFail
 import logging
+from datetime import datetime
 
-def option_group(opts_group):
+def option_group(title, opts_list, description=None):
     """Decorator to add option_group support to Cmdln.
     
     Based as closely as possible on cmdln.option"""
     def decorate(f):
         if not hasattr(f, "optparser"):
             f.optparser = SubCmdOptionParser()
-        f.optparser.add_options(opts_group)
+        opts_group = OptionGroup(f.optparser, title, description)
+        opts_group.add_options(opts_list)
+        f.optparser.add_option_group(opts_group)
         return f
     return decorate
 
