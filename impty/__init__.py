@@ -49,6 +49,8 @@ class Mappet(object):
         if status != 'OK':
             self.log.warn('SEARCH FAIL: [%s] %s'%(status, data))
             raise IMAPFail('Mailbox not found (%s)'%mbox)
+        if data[0] == '':
+            return []
         return data[0].split(' ')
 
     def count(self, mailbox, message_spec='ALL'):
