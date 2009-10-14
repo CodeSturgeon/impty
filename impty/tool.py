@@ -50,11 +50,8 @@ class PowerToyUI(Cmdln):
         """Global option processing and configuration, much like an __init__
         """
         self.log = logging.getLogger('UI')
-        if opts.log_level is None:
-            ll = logging.WARN
-        else:
-            ll = opts.log_level
-        logging.getLogger().setLevel(ll)
+        logging.getLogger().setLevel(opts.ensure_value(
+                                                    'log_level',logging.WARN))
         self.cfg = ConfigParser()
         self.cfg.read(expanduser(opts.config_file))
 
