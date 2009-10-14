@@ -4,7 +4,8 @@ from ConfigParser import ConfigParser, NoSectionError, NoOptionError
 import sys
 from impty import Mappet, IMAPFail
 import logging
-from datetime import datetime
+from datetime import datetime, date
+from calendar import monthrange
 from os.path import expanduser
 
 def option_group(title, opts_list, description=None):
@@ -37,6 +38,18 @@ class ConfigFail(Exception):
 
 class PowerToyUI(Cmdln):
 
+    date_grp = {
+        'title': 'Select messages by date.',
+        'description': '  Used to select messages by numeric date.',
+        'opts_list': [
+            make_option('','--before', action="store_true"),
+            make_option('','--since', action="store_true"),
+            make_option('-y','--year', type='int'),
+            make_option('-m','--month', type='int'),
+            make_option('-d','--day', type='int'),
+        ],
+    }
+
     opts_global = [
         make_option('-c', '--config-file', default='~/.impty_conf',
                     help='Specify location of configuration file (%default)'),
@@ -51,8 +64,8 @@ class PowerToyUI(Cmdln):
         """Global option processing and configuration, much like an __init__
         """
         self.log = logging.getLogger('UI')
-        logging.getLogger().setLevel(opts.ensure_value(
-                                                    'log_level',logging.WARN))
+        logging.getLogger().setLevel(opts.ensure_value('log_level',
+                                                        logging.WARN))
         self.cfg = ConfigParser()
         self.cfg.read(expanduser(opts.config_file))
 
@@ -74,14 +87,64 @@ class PowerToyUI(Cmdln):
 
         return Mappet(server, username, password)
 
+    def floor_opt_date(self, opts):
+        now = datetime.now()
+        # ensure_value sets the value on the options object!
+        year = opts.ensure_value('year', now.year)
+        # cannot use ensure_value here!
+        if opts.month is None:
+            month = 1
+        else:
+            month = opts.month
+        day = opts.ensure_value('day', 1)
+        return date(year,month,day).strftime('%d-%b-%Y')
+
+    def ceil_opt_date(self, opts):
+        # Only ever called if there is no day set
+        now = datetime.now()
+        year = opts.ensure_value('year', now.year)
+        month = opts.ensure_value('month', 12)
+        day = monthrange(year, month)[1]
+        return date(year,month,day).strftime('%d-%b-%Y')
+
+    def spec_from_opts(self, opts):
+        if opts.year or opts.month or opts.day:
+            if opts.before or opts.since:
+                # Dates need to be floored for before/since
+                ds = self.floor_opt_date(opts)
+                if opts.since:
+                    return '(SINCE %s)'%ds
+                else:
+                    return '(BEFORE %s)'%ds
+            else:
+                if opts.day is not None:
+                    now = datetime.now()
+                    day = opts.ensure_value('day', now.day)
+                    month = opts.ensure_value('month', now.month)
+                    year = opts.ensure_value('year', now.year)
+                    return '(ON %s)'%date(year,month,day).strftime('%d-%b-%Y')
+                else:
+                    floor = self.floor_opt_date(opts)
+                    ceil = self.ceil_opt_date(opts)
+                    return '(SINCE %s BEFORE %s)'%(floor, ceil)
+
+        return 'ALL'
+
     @options(opts_global)
+    @option_group(**date_grp)
     def do_count(self, sub_cmd, opts, *mboxs):
         """${cmd_name}
         Count number of messages in a mailbox
         
         ${cmd_usage}
         ${cmd_option_list}"""
+        #opts = obj_to_dict(opts)
         self.cfg(opts)
+        try:
+            mesg_spec = self.spec_from_opts(opts)
+        except ValueError:
+            sys.exit('Invalid date specified!')
+        self.log.debug('mesg_spec: %s'%mesg_spec)
         for mbx in mboxs:
             try:
                 account, mbox = mbx.split(':')
@@ -90,7 +153,7 @@ class PowerToyUI(Cmdln):
                 continue
             try:
                 m = self.mappet_from_cfg(account)
-                count = m.count(mbox, 'ALL')
+                count = m.count(mbox, mesg_spec)
             except ConfigFail, e:
                 print e.message
             except IMAPFail, e:
