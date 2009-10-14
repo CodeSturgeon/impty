@@ -32,6 +32,7 @@ def options(opts_list):
     return decorate
 
 class ConfigFail(Exception):
+    """Custom exception for problems in the config file"""
     pass
 
 class PowerToyUI(Cmdln):
@@ -56,6 +57,7 @@ class PowerToyUI(Cmdln):
         self.cfg.read(expanduser(opts.config_file))
 
     def mappet_from_cfg(self, account):
+        """Create a Mappet object from a configured account"""
         try:
             server = self.cfg.get(account,'server')
             username = self.cfg.get(account,'user')
