@@ -89,9 +89,9 @@ class PowerToyUI(Cmdln):
 
     def floor_opt_date(self, opts):
         now = datetime.now()
-        # ensure_value sets the value on the options object!
         year = opts.ensure_value('year', now.year)
-        # cannot use ensure_value here!
+        # The method ensure_value sets the value on the options object!
+        # Cannot use ensure_value here! It will mess up the ceil function...
         if opts.month is None:
             month = 1
         else:
@@ -118,12 +118,15 @@ class PowerToyUI(Cmdln):
                     return '(BEFORE %s)'%ds
             else:
                 if opts.day is not None:
+                    # If the day is set, it's a defined date and we can assume
+                    # the year and month
                     now = datetime.now()
                     day = opts.ensure_value('day', now.day)
                     month = opts.ensure_value('month', now.month)
                     year = opts.ensure_value('year', now.year)
                     return '(ON %s)'%date(year,month,day).strftime('%d-%b-%Y')
                 else:
+                    # If the day is not set, we are dealing with a range
                     floor = self.floor_opt_date(opts)
                     ceil = self.ceil_opt_date(opts)
                     return '(SINCE %s BEFORE %s)'%(floor, ceil)
