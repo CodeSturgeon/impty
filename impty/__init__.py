@@ -1,5 +1,6 @@
 from imaplib import IMAP4
 import logging
+import socket
 
 class IMAPFail(Exception):
     pass
@@ -18,7 +19,10 @@ class Mappet(object):
     def _connect(self):
         """Internal command to force creation of new autenticated connection"""
         self.log.info('Connecting to %s as %s'%(self.server, self.username))
-        self._cnx = IMAP4(self.server)
+        try:
+            self._cnx = IMAP4(self.server)
+        except socket.timeout:
+            raise IMAPFail('Server could not be contacted: %s'%self.server)
         status, data = self._cnx.login(self.username, self.password)
         if status != 'OK':
             self.log.warn('LOGIN FAIL: [%s] %s'%(status, data))

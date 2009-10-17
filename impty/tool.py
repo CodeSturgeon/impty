@@ -7,6 +7,7 @@ import logging
 from datetime import datetime, date
 from calendar import monthrange
 from os.path import expanduser
+import socket
 
 def option_group(title, opts_list, description=None):
     """Decorator to add option_group support to Cmdln.
@@ -51,6 +52,8 @@ class PowerToyUI(Cmdln):
     }
 
     opts_global = [
+        make_option('-t', '--timeout', default=10, type='int',
+                    help='Time in seconds to wait for servers (%default)'),
         make_option('-c', '--config-file', default='~/.impty_conf',
                     help='Specify location of configuration file (%default)'),
         make_option('-v', '--verbose', action='store_const', dest='log_level',
@@ -63,6 +66,7 @@ class PowerToyUI(Cmdln):
     def cfg(self, opts):
         """Global option processing and configuration, much like an __init__
         """
+        socket.setdefaulttimeout(opts.timeout)
         self.log = logging.getLogger('UI')
         logging.getLogger().setLevel(opts.ensure_value('log_level',
                                                         logging.WARN))
