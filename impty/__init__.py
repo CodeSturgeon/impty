@@ -5,6 +5,9 @@ import socket
 class IMAPFail(Exception):
     pass
 
+class IMAPMailboxNotFound(IMAPFail):
+    pass
+
 class Mappet(object):
     """Exception throwing abstraction wrapper for imaplib's IMAP4 class.
 
@@ -34,7 +37,7 @@ class Mappet(object):
         status, data = self._cnx.select(mailbox)
         if status != 'OK':
             self.log.warn('SELECT FAIL: [%s] %s'%(status, data))
-            raise IMAPFail('Mailbox not found (%s)'%mailbox)
+            raise IMAPMailboxNotFound('Mailbox not found (%s)'%mailbox)
 
     def _refresh(self):
         """Ensure a fresh connection"""
