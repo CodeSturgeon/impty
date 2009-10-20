@@ -55,7 +55,7 @@ class Mappet(object):
         status, data = self._cnx.search('UTF-8', message_spec)
         if status != 'OK':
             self.log.warn('SEARCH FAIL: [%s] %s'%(status, data))
-            raise IMAPFail('Mailbox not found (%s)'%mbox)
+            raise IMAPFail('Search failed (%s)'%data[0])
         if data[0] == '':
             return []
         return data[0].split(' ')
