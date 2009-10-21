@@ -138,6 +138,14 @@ class PowerToyUI(Cmdln):
         return 'ALL'
 
     @options(opts_global)
+    def do_list(self, sub_cmd, opts, *accs):
+        """List mailboxs on an account
+
+        ${cmd_usage}
+        ${cmd_option_list}"""
+
+
+    @options(opts_global)
     @option_group(**date_grp)
     def do_count(self, sub_cmd, opts, *mboxs):
         """${cmd_name}
