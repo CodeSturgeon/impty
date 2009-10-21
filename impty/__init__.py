@@ -1,6 +1,7 @@
 from imaplib import IMAP4
 import logging
 import socket
+import re
 
 class IMAPFail(Exception):
     pass
@@ -71,6 +72,18 @@ class Mappet(object):
         if status != 'OK':
             raise IMAPFail('Copy failed (%s)'%data[0])
 
+    def _list(self):
+        """IMAP copy - expects fresh selected connection"""
+        self.log.debug('listing')
+        status, data = self._cnx.list()
+        if status != 'OK':
+            raise IMAPFail('Copy failed (%s)'%data[0])
+        mbxs = []
+        for mbx_str in data:
+            mbxs.append(re.match('\((.*?)\)\s+"(.*?)"\s+"(.*?)"',mbx_str
+                                 ).groups())
+        return mbxs
+
     def count(self, mailbox, message_spec='ALL'):
         """High level count method"""
         self._refresh()
@@ -87,3 +100,9 @@ class Mappet(object):
         self._select(to_box)
         self._select(from_box)
         self._copy(to_box, message_set)
+
+    def list(self):
+        """High level list command, returns list of mailboxes"""
+        self._refresh()
+        tup_list = self._list()
+        return [tup[2] for tup in tup_list]

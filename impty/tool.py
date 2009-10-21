@@ -143,6 +143,15 @@ class PowerToyUI(Cmdln):
 
         ${cmd_usage}
         ${cmd_option_list}"""
+        self.cfg(opts)
+        for acc in accs:
+            try:
+                list = self.mappet_from_cfg(acc).list()
+            except (ConfigFail, IMAPFail), e:
+                sys.exit(e)
+            print '%s:'%acc
+            for mbx in list:
+                print '  %s'%mbx
 
 
     @options(opts_global)
