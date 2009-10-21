@@ -34,6 +34,7 @@ class Mappet(object):
 
     def _select(self, mailbox):
         """Select a mailbox - assumes current connection"""
+        self.log.debug('select [%s]'%mailbox)
         status, data = self._cnx.select(mailbox)
         if status != 'OK':
             self.log.warn('SELECT FAIL: [%s] %s'%(status, data))
@@ -52,6 +53,7 @@ class Mappet(object):
 
     def _search(self, message_spec):
         """Do a search and return a list of message numbers"""
+        self.log.debug('searching for %s'%message_spec)
         status, data = self._cnx.search('UTF-8', message_spec)
         if status != 'OK':
             self.log.warn('SEARCH FAIL: [%s] %s'%(status, data))
@@ -63,6 +65,7 @@ class Mappet(object):
     def _copy(self, to_box, message_spec):
         """IMAP copy - expects fresh selected connection"""
         status, data = self._cnx.copy(message_spec, to_box)
+        self.log.debug('copy [%s] to [%s]'%(message_set, to_box))
         if status != 'OK':
             raise IMAPFail('Copy failed (%s)'%data[0])
 
