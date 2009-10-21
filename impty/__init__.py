@@ -39,6 +39,8 @@ class Mappet(object):
         if status != 'OK':
             self.log.warn('SELECT FAIL: [%s] %s'%(status, data))
             raise IMAPMailboxNotFound('Mailbox not found (%s)'%mailbox)
+        # Return the number of messages in the mailbox
+        return data[0]
 
     def _refresh(self):
         """Ensure a fresh connection"""
