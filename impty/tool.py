@@ -147,20 +147,18 @@ class PowerToyUI(Cmdln):
 
     @options(opts_global)
     @option_group(**date_grp)
-    def do_count(self, sub_cmd, opts, *mboxs):
-        """${cmd_name}
-        Count number of messages in a mailbox
+    def do_count(self, sub_cmd, opts, *mbxs):
+        """Count number of messages in a mailbox
         
         ${cmd_usage}
         ${cmd_option_list}"""
-        #opts = obj_to_dict(opts)
         self.cfg(opts)
         try:
             mesg_spec = self.spec_from_opts(opts)
         except ValueError:
             sys.exit('Invalid date specified!')
         self.log.debug('mesg_spec: %s'%mesg_spec)
-        for mbx in mboxs:
+        for mbx in mbxs:
             try:
                 account, mbox = mbx.split(':')
             except ValueError:
@@ -175,6 +173,36 @@ class PowerToyUI(Cmdln):
                 print e.message
             else:
                 print mbx, count
+
+    @options(opts_global)
+    def do_copy(self, sub_cmd, opts, src_mbx, dst_mbx):
+        """Copy messages from one mailbox to another
+
+        ${cmd_usage}
+        ${cmd_option_list}"""
+        self.cfg(opts)
+        # Parse mbx specs
+        try:
+            s_acc, s_mbx = src_mbx.split(':')
+        except ValueError:
+            print 'Invalid source mailbox spec: %s'%dst_mbx
+        try:
+            d_acc, d_mbx = dst_mbx.split(':')
+        except ValueError:
+            print 'Invalid destination mailbox spec: %s'%dst_mbx
+        if s_acc != d_acc:
+            sys.exit('account to account copy not supported yet')
+        # Get mbx
+        try:
+            mpt = self.mappet_from_cfg(s_acc)
+        except IMAPFail, e:
+            sys.exit(e)
+
+        # Do copy
+        try:
+            mpt.copy(s_mbx,d_mbx,'1:*')
+        except IMAPFail, e:
+            sys.exit(e)
 
 def main():
     logging.basicConfig(level=logging.DEBUG)

@@ -64,24 +64,26 @@ class Mappet(object):
             return []
         return data[0].split(' ')
 
-    def _copy(self, to_box, message_spec):
+    def _copy(self, to_box, message_set):
         """IMAP copy - expects fresh selected connection"""
-        status, data = self._cnx.copy(message_spec, to_box)
         self.log.debug('copy [%s] to [%s]'%(message_set, to_box))
+        status, data = self._cnx.copy(message_set, to_box)
         if status != 'OK':
             raise IMAPFail('Copy failed (%s)'%data[0])
 
     def count(self, mailbox, message_spec='ALL'):
         """High level count method"""
         self._refresh()
-        self._select(mailbox)
+        total_messages = self._select(mailbox)
+        if message_spec == 'ALL':
+            return total_messages
         message_list = self._search(message_spec)
         return len(message_list)
 
-    def copy(self, from_box, to_box, message_spec='ALL')
+    def copy(self, from_box, to_box, message_set='1:*'):
         """High level copy command"""
         self._refresh()
-        # Select the _to_ box to make sure it is there
+        # Select the to_box to make sure it is there
         self._select(to_box)
         self._select(from_box)
-        self._copy(to_box, message_spec)
+        self._copy(to_box, message_set)
