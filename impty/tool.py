@@ -63,7 +63,7 @@ class PowerToyUI(Cmdln):
                     help = 'Verbose output (DEBUG)'),
     ]
 
-    def cfg(self, opts):
+    def configure(self, opts):
         """Global option processing and configuration, much like an __init__
         """
         socket.setdefaulttimeout(opts.timeout)
@@ -143,7 +143,7 @@ class PowerToyUI(Cmdln):
 
         ${cmd_usage}
         ${cmd_option_list}"""
-        self.cfg(opts)
+        self.configure(opts)
         for acc in accs:
             try:
                 list = self.mappet_from_cfg(acc).list()
@@ -161,7 +161,7 @@ class PowerToyUI(Cmdln):
         
         ${cmd_usage}
         ${cmd_option_list}"""
-        self.cfg(opts)
+        self.configure(opts)
         try:
             mesg_spec = self.spec_from_opts(opts)
         except ValueError:
@@ -189,7 +189,7 @@ class PowerToyUI(Cmdln):
 
         ${cmd_usage}
         ${cmd_option_list}"""
-        self.cfg(opts)
+        self.configure(opts)
         # Parse mbx specs
         try:
             s_acc, s_mbx = src_mbx.split(':')
