@@ -106,3 +106,23 @@ class Mappet(object):
         self._refresh()
         tup_list = self._list()
         return [tup[2] for tup in tup_list]
+
+    @staticmethod
+    def search_to_set(message_list):
+        """Efficently transform a search result to a message set"""
+        # Ensure we are dealing with a list of ints
+        local_list = [int(mid) for mid in message_list]
+        local_list.sort(reverse=True)
+        message_set = []
+        while len(local_list)>0:
+            message_id = local_list.pop()
+            message_set.append(str(message_id))
+            # Find consecutive numbers and group
+            # FIXME itertools might have better solution
+            if len(local_list)>0 and local_list[-1:][0] == message_id+1:
+                message_set.append('-')
+                while len(local_list)>0 and local_list[-1:][0] == message_id+1:
+                    message_id = local_list.pop()
+                message_set.append(str(message_id))
+            message_set.append(',')
+        return ''.join(message_set[:-1])
