@@ -111,7 +111,7 @@ class Mappet(object):
     def search_to_set(message_list):
         """Efficently transform a search result to a message set"""
         # Ensure we are dealing with a list of ints
-        local_list = [int(mid) for mid in message_list]
+        local_list = map(int, message_list)
         local_list.sort(reverse=True)
         message_set = []
         while len(local_list)>0:
