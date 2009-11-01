@@ -109,7 +109,10 @@ class Mappet(object):
 
     @staticmethod
     def search_to_set(message_list):
-        """Efficently transform a search result to a message set"""
+        """Efficently transform a search result to a message set
+        
+        Takes a list of message_ids (not UIDs) and returns a IMAP4 message set,
+        with consecutive numbers collapsed to ranges (start:finish)"""
         # Ensure we are dealing with a list of ints
         local_list = map(int, message_list)
         local_list.sort(reverse=True)
