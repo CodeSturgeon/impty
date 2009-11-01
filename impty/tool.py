@@ -4,7 +4,7 @@ from ConfigParser import ConfigParser, NoSectionError, NoOptionError
 import sys
 from impty import Mappet, IMAPFail
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from calendar import monthrange
 from os.path import expanduser
 import socket
@@ -109,7 +109,8 @@ class PowerToyUI(Cmdln):
         year = opts.ensure_value('year', now.year)
         month = opts.ensure_value('month', 12)
         day = monthrange(year, month)[1]
-        return date(year,month,day).strftime('%d-%b-%Y')
+        oneday = timedelta(days=1)
+        return (date(year,month,day)+oneday).strftime('%d-%b-%Y')
 
     def spec_from_opts(self, opts):
         if opts.year or opts.month or opts.day:
