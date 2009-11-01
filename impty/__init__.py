@@ -120,7 +120,7 @@ class Mappet(object):
             # Find consecutive numbers and group
             # FIXME itertools might have better solution
             if len(local_list)>0 and local_list[-1:][0] == message_id+1:
-                message_set.append('-')
+                message_set.append(':')
                 while len(local_list)>0 and local_list[-1:][0] == message_id+1:
                     message_id = local_list.pop()
                 message_set.append(str(message_id))
