@@ -73,7 +73,7 @@ class Mappet(object):
             raise IMAPFail('Copy failed (%s)'%data[0])
 
     def _list(self):
-        """IMAP copy - expects fresh selected connection"""
+        """IMAP list - expects fresh selected connection"""
         self.log.debug('listing')
         status, data = self._cnx.list()
         if status != 'OK':
