@@ -93,6 +93,11 @@ class Mappet(object):
         message_list = self._search(message_spec)
         return len(message_list)
 
+    def search(self, mailbox, message_spec='ALL'):
+        self._refresh()
+        self._select(mailbox)
+        return self._search(message_spec)
+
     def copy(self, from_box, to_box, message_set='1:*'):
         """High level copy command"""
         self._refresh()
