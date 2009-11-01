@@ -153,7 +153,6 @@ class PowerToyUI(Cmdln):
             for mbx in list:
                 print '  %s'%mbx
 
-
     @options(opts_global)
     @option_group(**date_grp)
     def do_count(self, sub_cmd, opts, *mbxs):
